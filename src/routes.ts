@@ -34,6 +34,24 @@ router.post("/tarefa", (req: Request, res: Response) => {
   res.json(tarefas);
 })
 
+// Atualizar uma única tarefa
+router.put("/tarefa/:index", (req: Request, res: Response) => {
+  const { index } = req.params;
+  const { nome } = req.body;
+
+  tarefas[Number(index)] = nome;
+
+  res.json(tarefas);
+});
+
+// Deletar alguma tarefa
+router.delete("/tarefa/:index", (req: Request, res: Response) => {
+  const { index } = req.params;
+
+  tarefas.splice(Number(index), 1);
+
+  res.json({ message: "Tarefa deletada com sucesso!" })
+})
 
 export { router };
 
