@@ -4,24 +4,53 @@ const router = Router();
 
 // Exemplo: http://localhost:3333/tarefas
 
-// Query Params ?nome=Comprar Pao
-// router.get("/tarefas", (req: Request, res: Response) => {
-//   const nome = req.query.nome;
+const tarefas = ["Estudar Node JS", "Estudar JavaScript"];
 
-//   res.json({ tarefa: nome });
-// })
+// Listar todas tarefas
+router.get("/tarefas", (req: Request, res: Response) => {
+  res.json(tarefas);
+});
 
+// Listar única tarefa
+router.get("/tarefa/:index", (req: Request, res: Response) => {
+  const index = req.params.index;
 
-// Route Params /tarefas/2
-router.get("/tarefas/:id", (req: Request, res: Response) => {
-  const id = req.params.id;
+  res.json({ tarefa: tarefas[Number(index)]})
+})
 
-  res.json({ tarefa: `Tarefa com id: ${id}` });
+// Cadastrar nova tarefa
+router.post("/tarefa", (req: Request, res: Response) => {
+  
+  const { nome } = req.body;
+
+  // Trativa de verificação se estamos recebendo a propriedade nome na requisição 
+  if (!nome) {
+    res.status(400).json({ message: "Erro ao cadastrar"});
+    return
+  }
+  // Para adicionar o item escrito em nome no array tarefas
+  tarefas.push(nome)
+
+  res.json(tarefas);
 })
 
 
-
-// Request Body { nome: "Comprar Pao", "usuario": 123 }
-
-
 export { router };
+
+// Query Params ?nome=Comprar Pao
+// router.get("/tarefas", (req: Request, res: Response) => {
+  //   const nome = req.query.nome;
+  
+  //   res.json({ tarefa: nome });
+  // })
+  
+  
+  // Route Params /tarefas/2
+  // router.get("/tarefas/:id", (req: Request, res: Response) => {
+    //   const id = req.params.id;
+    
+    //   res.json({ tarefa: `Tarefa com id: ${id}` });
+    // })
+
+
+  // Request Body { nome: "Comprar Pao", "usuario": 123 }
