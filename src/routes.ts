@@ -1,10 +1,29 @@
-import { Router, Request, Response } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 
 const router = Router();
 
 // Exemplo: http://localhost:3333/tarefas
 
 const tarefas = ["Estudar Node JS", "Estudar JavaScript"];
+
+/* Entendendo Middlewares
+  - Está ali no meio, após chamar a requisição e antes de chamar o callback.
+  - O use é um middleware
+*/
+
+router.use((req: Request, res: Response, next: NextFunction) => {
+  console.log("PASSOU PELO MIDDLEWARE GLOBAL");
+
+  return next();
+})
+
+function checkTarefa(req: Request, res: Response, next: NextFunction) {
+  if(!req.body.nome) {
+    return res.status(400).json({ error: "Nome Inválido / Faltando nome"});
+  }
+
+  return next();
+}
 
 // Listar todas tarefas
 router.get("/tarefas", (req: Request, res: Response) => {
@@ -18,21 +37,32 @@ router.get("/tarefa/:index", (req: Request, res: Response) => {
   res.json({ tarefa: tarefas[Number(index)]})
 })
 
-// Cadastrar nova tarefa
-router.post("/tarefa", (req: Request, res: Response) => {
+
+// Cadastrar nova tarefa com middleware:
+router.post("/tarefa", checkTarefa, (req: Request, res: Response) => {
   
   const { nome } = req.body;
 
-  // Trativa de verificação se estamos recebendo a propriedade nome na requisição 
-  if (!nome) {
-    res.status(400).json({ message: "Erro ao cadastrar"});
-    return
-  }
-  // Para adicionar o item escrito em nome no array tarefas
   tarefas.push(nome)
 
   res.json(tarefas);
 })
+
+// // Cadastrar nova tarefa
+// router.post("/tarefa", (req: Request, res: Response) => {
+  
+//   const { nome } = req.body;
+
+//   // Trativa de verificação se estamos recebendo a propriedade nome na requisição 
+//   if (!nome) {
+//     res.status(400).json({ message: "Erro ao cadastrar"});
+//     return
+//   }
+//   // Para adicionar o item escrito em nome no array tarefas
+//   tarefas.push(nome)
+
+//   res.json(tarefas);
+// })
 
 // Atualizar uma única tarefa
 router.put("/tarefa/:index", (req: Request, res: Response) => {
