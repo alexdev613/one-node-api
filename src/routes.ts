@@ -17,6 +17,7 @@ router.use((req: Request, res: Response, next: NextFunction) => {
   return next();
 })
 
+// Verifica se a prop nome existe do body
 function checkTarefa(req: Request, res: Response, next: NextFunction) {
   if(!req.body.nome) {
     return res.status(400).json({ error: "Nome Inválido / Faltando nome"});
@@ -24,6 +25,20 @@ function checkTarefa(req: Request, res: Response, next: NextFunction) {
 
   return next();
 }
+
+// Verifica se o index existe:
+function checkIndexTarefa(req: Request, res: Response, next: NextFunction) {
+  const tarefa = tarefas[Number(req.params.index)];
+
+  if (!tarefa) {
+    return res.status(400).json({ error: "Tarefa não encontrada!" });
+  }
+
+  return next();
+
+}
+
+//------------------------------------------------------------------------//
 
 // Listar todas tarefas
 router.get("/tarefas", (req: Request, res: Response) => {
@@ -37,8 +52,8 @@ router.get("/tarefa/:index", (req: Request, res: Response) => {
   res.json({ tarefa: tarefas[Number(index)]})
 })
 
-
 // Cadastrar nova tarefa com middleware:
+// OBS: o middleware é sempre "após a rota e antes do callback"
 router.post("/tarefa", checkTarefa, (req: Request, res: Response) => {
   
   const { nome } = req.body;
@@ -49,23 +64,25 @@ router.post("/tarefa", checkTarefa, (req: Request, res: Response) => {
 })
 
 // // Cadastrar nova tarefa
-// router.post("/tarefa", (req: Request, res: Response) => {
+/*router.post("/tarefa", (req: Request, res: Response) => {
   
-//   const { nome } = req.body;
+  const { nome } = req.body;
 
-//   // Trativa de verificação se estamos recebendo a propriedade nome na requisição 
-//   if (!nome) {
-//     res.status(400).json({ message: "Erro ao cadastrar"});
-//     return
-//   }
-//   // Para adicionar o item escrito em nome no array tarefas
-//   tarefas.push(nome)
+  // Trativa de verificação se estamos recebendo a propriedade nome na requisição 
+  if (!nome) {
+    res.status(400).json({ message: "Erro ao cadastrar"});
+    return
+  }
+  // Para adicionar o item escrito em nome no array tarefas
+  tarefas.push(nome)
 
-//   res.json(tarefas);
-// })
+  res.json(tarefas);
+})
+*/
 
-// Atualizar uma única tarefa
-router.put("/tarefa/:index", (req: Request, res: Response) => {
+// Cadastrar uma tarefa com middleware:
+// OBS: o middleware é sempre "após a rota e antes do callback", e também posso passar mais de um middleware
+router.put("/tarefa/:index", checkTarefa, checkIndexTarefa, (req: Request, res: Response) => {
   const { index } = req.params;
   const { nome } = req.body;
 
@@ -74,14 +91,36 @@ router.put("/tarefa/:index", (req: Request, res: Response) => {
   res.json(tarefas);
 });
 
-// Deletar alguma tarefa
-router.delete("/tarefa/:index", (req: Request, res: Response) => {
+
+// //Atualizar uma única tarefa
+/*router.put("/tarefa/:index", (req: Request, res: Response) => {
+  const { index } = req.params;
+  const { nome } = req.body;
+
+  tarefas[Number(index)] = nome;
+
+  res.json(tarefas);
+});
+*/
+
+// Deletar alguma tarefa com middleware:
+router.delete("/tarefa/:index", checkIndexTarefa, (req: Request, res: Response) => {
   const { index } = req.params;
 
   tarefas.splice(Number(index), 1);
 
   res.json({ message: "Tarefa deletada com sucesso!" })
 })
+
+// Deletar alguma tarefa
+/*router.delete("/tarefa/:index", (req: Request, res: Response) => {
+  const { index } = req.params;
+
+  tarefas.splice(Number(index), 1);
+
+  res.json({ message: "Tarefa deletada com sucesso!" })
+})
+*/
 
 export { router };
 
